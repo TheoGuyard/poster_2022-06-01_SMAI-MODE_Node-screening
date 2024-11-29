@@ -1,48 +1,324 @@
-\documentclass[xcolor={x11names},10pt]{beamer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Jacobs Landscape Poster
+% LaTeX Template
+% Version 1.1 (14/06/14)
+%
+% Created by:
+% Computational Physics and Biophysics Group, Jacobs University
+% https://teamwork.jacobs-university.de:8443/confluence/display/CoPandBiG/LaTeX+Poster
+% 
+% Further modified by:
+% Nathaniel Johnston (nathaniel@njohnston.ca)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usetheme{metropolis}
-\metroset{numbering=fraction}
-\metroset{block=fill}
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
 
-\newcommand{\backupbegin}{
-  \newcounter{finalframe}
-  \setcounter{finalframe}{\value{framenumber}}
+\documentclass[final]{beamer}
+
+\usepackage[scale=1.24]{beamerposter}
+\usepackage{tikz}
+\usetikzlibrary{matrix}
+\usetikzlibrary{positioning}
+\usetikzlibrary{er}
+\usepackage{ragged2e}
+
+\usetheme{confposter}
+
+\setbeamercolor{block title}{fg=dblue,bg=white}
+\setbeamercolor{block body}{fg=black,bg=white}
+\setbeamercolor{block alerted title}{fg=white,bg=dblue!70}
+\setbeamercolor{block alerted body}{fg=black,bg=dblue!10}
+\setbeamercolor{item}{fg=nblue}
+\setbeamercolor{item projected}{fg=white,bg=nblue}
+
+\newlength{\sepwid}
+\newlength{\onecolwid}
+\newlength{\twocolwid}
+\newlength{\threecolwid}
+\setlength{\paperwidth}{46.8in} % A0 width: 46.8in
+\setlength{\paperheight}{33.1in} % A0 height: 33.1in
+\setlength{\sepwid}{0.024\paperwidth} % Separation width (white space) between columns
+\setlength{\onecolwid}{0.22\paperwidth} % Width of one column
+\setlength{\twocolwid}{0.464\paperwidth} % Width of two columns
+\setlength{\threecolwid}{0.708\paperwidth} % Width of three columns
+\setlength{\topmargin}{-1.5in} % Reduce the top margin size
+
+\usepackage{kmath}
+\include{headings/packages}
+\include{headings/shortcuts}
+\include{headings/macros}
+\usepackage[pscoord]{eso-pic}
+\newcommand{\placetextbox}[3]{
+  \setbox0=\hbox{#3}
+  \AddToShipoutPictureFG*{
+    \put(\LenToUnit{#1\paperwidth},\LenToUnit{#2\paperheight}){\vtop{{\null}\makebox[0pt][c]{#3}}}
+  }
 }
-\newcommand{\backupend}{
-  \setcounter{framenumber}{\value{finalframe}}
-}
 
-\usepackage{headings/kmath}
-\input{headings/packages}
-\input{headings/macros}
+\usepackage[ruled]{algorithm2e}
 
-\newenvironment<>{blockcolor}[2]{%
-  \setbeamercolor{block title}{fg=#1,bg=#1!15}%
-  \setbeamercolor{block body}{fg=#1,bg=#1!15}%
-  \begin{block}#3{\centering#2}
-}{%
-  \end{block}
-}
+\newcommand{\emphone}[1]{{\color{norange}#1}}
 
-\definecolor{TolLightWhite}{HTML}{FAFAFA}
-\definecolor{TolLightOrange}{HTML}{ECA244}
+\newacronym{bnb}{BnB}{Branch-and-Bound}
+\newacronym{mip}{MIP}{Mixed-Integer Program}
+\newcommand{\METHOD}{NODE-SCREENING\xspace}
+\newcommand{\Method}{Node-screening\xspace}
+\newcommand{\method}{node-screening\xspace}
+\newcommand{\sparsitylevel}{k}
+\newcommand{\sparsevector}{\pv^0}
+\newcommand{\CPLEX}{\texttt{Direct}}
+\newcommand{\BNB}{\texttt{BnB}}
+\newcommand{\BNBscr}{\texttt{BnB+scr}}
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION 
+%----------------------------------------------------------------------------------------
+
+\title{Node-screening tests for the $\mathbf{\ell}_{\0}$-penalized least-squares problem}
+
+\author{Théo Guyard${}^{\star}$, Cédric Herzet${}^{\dagger}$, Clément Elvira${}^{\ddagger}$}
+
+\institute{${}^{\star}$Applied Mathematics Department, INSA Rennes, France | ${}^{\dagger}$SIMSMART team, INRIA Rennes-Bretagne Atlantique, France | ${}^{\ddagger}$SCEE team, CentraleSupelec Rennes, France}
+
+%----------------------------------------------------------------------------------------
 
 \begin{document}
 
-\begin{frame}[plain,noframenumbering]
-  \begin{center}
-    {\large\textbf{Slides Template}}
-  \end{center}
-  \begin{center}
-    Théo Guyard
-  \end{center}
+%\placetextbox{0.955}{0.995}{\fbox{Paper ID : 2482}}
+
+\addtobeamertemplate{block end}{}{\vspace*{2ex}}
+\addtobeamertemplate{block alerted end}{}{\vspace*{2ex}}
+
+\setlength{\belowcaptionskip}{2ex}
+\setlength\belowdisplayshortskip{2ex}
+
+\begin{frame}[t]
+\begin{columns}[t]
+
+\begin{column}{\sepwid}\end{column}
+
+\begin{column}{\onecolwid}
+
+    \setbeamercolor{block alerted title}{fg=white,bg=norange}
+    \setbeamercolor{block alerted body}{fg=black,bg=white}
+    \begin{alertblock}{Objectives}
+        Reduce the optimization time of a \gls{bnb} algorithm tailored to the $\ell_0$-penalized least-squares problem by detecting nodes of the decision tree that cannot yield a global optimizer.
+    \end{alertblock}
+
+    \begin{block}{Introduction}
+        \begin{itemize}
+            \item \hspace*{0.1em} \justifying \textbf{Sparse decomposition:} Find an approximation of a vector $\obs$ as the \emph{linear combination} of a \emph{few} columns of a matrix $\dic$.
+        \end{itemize}
+        %
+        \vspace*{0.5em}
+        %
+        \setbeamercolor{block alerted title}{fg=white,bg=dblue!70}
+        \setbeamercolor{block alerted body}{fg=black,bg=dblue!10}
+        \begin{alertblock}{$\boldsymbol{\ell}_{\0}$-penalized least-squares}
+            \begin{tikzpicture}
+                \node (basis)[minimum width=3em] {};
+                \node (norm2) [left=2em of basis.north west] {$\norm{\obs-\dic\pv}{2}$};
+                \node (datafidelity) [below=0em of norm2] {Ensures \emphone{data-fidelity}};
+                \node (norm0) [right=2em of basis.north east] {$\norm{\pv}{0}$};
+                \node (sparsity)[below=0em of norm0] {Promotes \emphone{sparsity}};
+                \node (problem) [below=3.5em of basis.north] {
+                    $
+                    \hspace*{-3em}
+                    (\mathcal{P}) \quad
+                    \left\{
+                    \begin{array}{rl}
+                        \min & \ \tfrac{1}{2} \norm{\obs-\dic\pv}{2}^2 + \reg \norm{\pv}{0} \\
+                        \text{st.} & \ \norm{\pv}{\infty} \leq \bigM
+                    \end{array}
+                    \right.
+                    $
+                };
+                \draw[thick,->,line width=5pt] (datafidelity) -- (problem);
+                \draw[thick,->,line width=5pt] (sparsity) -- (problem);
+            \end{tikzpicture}
+        \end{alertblock}
+        %
+        \begin{itemize}
+            \item \hspace*{0.1em} \textbf{Characteristics:}
+            \begin{itemize}
+                \normalsize \item[-] \hspace*{0.1em} NP-hard problem due to the $\ell_0$-norm
+                \item[-] \hspace*{0.1em} \glsdesc{mip} reformulation
+                \item[-] \hspace*{0.1em} Addressable with \gls{bnb} algorithms  
+                \item[-] \hspace*{0.1em} ``Big-M'' to construct bounded relaxations
+            \end{itemize}
+        \end{itemize}
+
+        \begin{itemize}
+            \item \hspace*{0.1em} \textbf{Recent advances by Atamturk \textit{et. al.}:}
+            \begin{itemize}
+                \normalsize \justifying \item[-] \hspace*{0.1em} \emphone{Screening tests} to detect zeros and non-zeros in the optimizers of the problem
+                \item[-] \hspace*{0.1em} Dimensionality reduction in \emphone{pre-processing}
+            \end{itemize}
+        \end{itemize}
+
+        \begin{itemize}
+            \item \hspace*{0.1em} \textbf{Our contributions:}
+            \begin{itemize}
+                \normalsize \justifying \item[-] \hspace*{0.1em} \emphone{Node-screening tests} to detect zeros and non-zeros in the optimizers of \emphone{any node} problem
+                \item[-] \hspace*{0.05em} Dimensionality reduction at \emphone{any step} of the optimization process
+                \item[-] \hspace*{0.05em} Larger improvement in the solving time
+            \end{itemize}
+        \end{itemize}
+    \end{block}
+\end{column}
+
+\begin{column}{\sepwid}\end{column}
+
+\begin{column}{\twocolwid}    
+    \begin{columns}[t,totalwidth=\twocolwid]
+        \begin{column}{\onecolwid}\vspace{-.6in} 
+            
+            \begin{block}{\gls{bnb} algorithms}
+                \begin{itemize}
+                    \item \hspace*{0.1em} \textbf{Generic procedure:}
+                \end{itemize}
+                \vspace*{1em}
+                \input{algo} 
+                \vspace*{1em}
+                \begin{itemize}
+                    \item \hspace*{0.1em} \textbf{Efficiency of the algorithm:}
+                    \begin{itemize}
+                        \normalsize 
+                        \item[-] \hspace*{0.1em} Tightness of the bounds computed
+                        \item[-] \hspace*{0.1em} Ability to process nodes quickly
+                        \item[-] \hspace*{0.1em} \emphone{Number of nodes processed}
+                    \end{itemize}
+                \end{itemize}
+                \begin{itemize}
+                    \item \hspace*{0.1em} \textbf{Particularized to our problem:}
+                    \begin{itemize}
+                        \normalsize \justifying \item[-] \hspace*{0.1em} Binary tree with decision about the \emphone{nullity of an entry} at each node
+                        \item[-] \hspace*{0.1em} Each node is uniquely defined by the set of entries forced to \emphone{zero} and to \emphone{non-zero}
+                    \end{itemize}
+                \end{itemize}
+            \end{block}
+        \end{column}
+
+        \begin{column}{\onecolwid}\vspace{-.6in}
+            \begin{block}{Node-screening tests}
+                \begin{itemize}
+                    \item \hspace*{0.1em} \textbf{Underlying idea:}
+                    \begin{itemize}
+                        \normalsize \justifying 
+                        \item[i)] \hspace*{0.1em} For many nodes, it is obvious that they cannot yield a global solution (too large penalty, \textit{etc}...)
+                        \item[ii)] \hspace*{0.1em} \gls{bnb} is an exact method so we have to \emphone{prove} that they can be pruned safely
+                        \item[iii)] \hspace*{0.1em} Standard pruning methodology : solve a convex relaxation. This is \emphone{expensive} !
+                        \item[iv)] \hspace*{0.1em} Why not trying \emphone{weaker} but \emphone{cheaper} methods ? 
+                    \end{itemize}
+                \end{itemize}
+                \begin{center}
+                    \begin{tikzpicture}[
+                        every node/.style = 
+                            {
+                                draw=dblue!70,
+                                fill=dblue!10,
+                                thick,
+                                text width=0.45\linewidth,
+                                align=center,
+                                line width=5pt,
+                            }
+                        ]
+                        \node (hard) {``Non-obvious'' nodes};
+                        \node (easy) [right=of hard] {``Obvious'' nodes};
+                        \node (hardmethod) [below=1.5em of hard] {Standard pruning};
+                        \node (easymethod) [below=1.5em of easy] {Node-screening};
+                        \draw[thick,->,line width=5pt] (hard) -- (hardmethod);
+                        \draw[thick,->,line width=5pt] (easy) -- (easymethod);
+                    \end{tikzpicture}
+                \end{center}
+                \vspace*{0.5em}
+                \begin{itemize}
+                    \item \hspace*{0.1em} \textbf{Differences with the classical method:}
+                    \begin{itemize}
+                        \normalsize \item[-] \hspace*{0.1em} Test \emphone{any} unfixed index, no branching rule
+                        \item[-] \hspace*{0.1em} No computational overhead to prune nodes
+                        \item[-] \hspace*{0.1em} Can fix \emphone{multiple variables simultaneously}
+                    \end{itemize}
+                \end{itemize}
+            \end{block}
+            \begin{alertblock}{Main ingredients}
+                \begin{itemize}
+                    \item \hspace*{0.1em} At each node, a \emphone{convex relaxation} is solved
+                    \item \hspace*{0.1em} We construct the \emphone{dual} of this relaxation
+                    \item \hspace*{0.1em} Duals are very similar between two nodes
+                    \item \hspace*{0.1em} At node $\nu$, we use this relation to hopefully \emphone{prune the child node} of $\nu$ constructed by branching on a given index
+                \end{itemize}
+            \end{alertblock}
+        \end{column}
+    \end{columns}
+
+    \begin{figure}
+        \begin{subfigure}[b]{0.49\textwidth}
+            \centering
+            \input{bnb}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.49\textwidth}
+            \centering
+            \input{bnb-scr}
+        \end{subfigure}
+    \end{figure}
+\end{column}
+
+\begin{column}{\sepwid}\end{column}
+
+\begin{column}{\onecolwid}
+    \begin{block}{Numerical results}
+        \begin{itemize}
+            \item \hspace{0.1in} \textbf{Data generation:}
+            \begin{itemize}
+                \justifying
+                \normalsize \item[1)] \hspace{0.1in} Set $(\ddim,\pdim)=(500,1000)$
+                \item[2)] \hspace{0.1in} Generate a random matrix $\dic \in \kR^{\ddim\times\pdim}$ with a correlation $\rho$ between the columns
+                \item[3)] \hspace{0.1in} Generate a $k$-sparse vector $\pv^{\dagger} \in \kR^{\pdim}$
+                \item[4)] \hspace{0.1in} \normalsize Set $\obs = \dic\pv^{\dagger} + \text{noise with 10dB SNR}$
+                \item[5)] \hspace{0.1in} \normalsize Calibrate $\lambda$ and $M$ statistically to recover $\pv^{\dagger}$
+            \end{itemize}
+        \end{itemize}
+        \begin{itemize}
+            \item \hspace{0.1in} \textbf{Concurrent methods:}
+            \begin{itemize}
+                \normalsize \item[-] \hspace{0.1in} \normalsize Direct method using CPLEX
+                \item[-] \hspace{0.1in} \normalsize Tailored \gls{bnb} algorithm from Mhenni \textit{et. al.} 
+                \item[-] \hspace{0.1in} \normalsize Tailored \gls{bnb} algorithm with \emphone{node-screening}
+            \end{itemize}
+        \end{itemize}
+        \input{perf}
+        \begin{itemize}
+            \item \hspace{0.1in} \textbf{Observations:}
+            \begin{itemize}
+                \normalsize \justifying \item[-] \hspace*{0.1in} BnB + node-scr. has the best performances
+                \item[-] \hspace*{0.1in} Time gain is larger than node gain
+                \item[-] \hspace*{0.1in} Double kiss-cool effect : the bounding step is performed all the faster as \emphone{many variables are fixed}
+            \end{itemize}
+        \end{itemize}
+        \vspace*{1em}
+        \setbeamercolor{block alerted title}{fg=white,bg=norange}
+        \setbeamercolor{block alerted body}{fg=black,bg=white}
+        \begin{alertblock}{Take home message}
+            In a \gls{bnb} tailored to a sparse problem, there is not always need to perform heavy computations to prune nodes.
+            Many nodes can be \emphone{easily pruned} by performing \emphone{simple and cheap tests} like the node-screening one.
+        \end{alertblock}
+    \end{block}
+\end{column} 
+
+\begin{column}{\sepwid}\end{column}
+
+\end{columns}
 \end{frame}
-
-% Main slides
-
-% \backupbegin
-% Supplementary slides
-% \backupend
-
 
 \end{document}

@@ -1,0 +1,22 @@
+\setlength{\tabcolsep}{11pt}
+
+\begin{table}[!ht]
+	\small
+	\centering
+    \begin{tabular}{cc||c|c|c||c|c|c||c|c|c}
+	\toprule
+	& & \multicolumn{3}{c||}{Direct} & \multicolumn{3}{c||}{BnB} & \multicolumn{3}{c}{BnB + node-scr.} \\
+	$\rho$ & \(\sparsitylevel\) & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{T} & \multicolumn{1}{c||}{F} & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{T} & \multicolumn{1}{c||}{F} & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{T} & \multicolumn{1}{c}{F} \\ \midrule\midrule
+    & \(5\) & 0.1 & 25.9 & 0 & 0.1 & 1.5 & 0 & \textbf{0.05} & \textbf{0.7} & \textbf{0} \\
+    & \(7\) & 0.3 & 60.8 & 0 & 0.2 & 5.1 & 0 & \textbf{0.1} & \textbf{3.0} & \textbf{0} \\ 
+    \parbox[t]{8mm}{\multirow{-3}{*}{\rotatebox[origin=c]{90}{Low}}} & \(9\) & 0.8 & 102.6 & 10 & 0.5 & 15.6 & 0 & \textbf{0.4} & \textbf{9.8} & \textbf{0} \\ \midrule
+	& \(5\) & 1.4 & 10.2 & 0 & 1.0 & 6.4 & 0 & \textbf{0.7} & \textbf{4.2} & \textbf{0} \\
+    & \(7\) & 17.6 & 106.5 & 0 & 10.5 & 79.3 & 0 & \textbf{7.9} & \textbf{52.2} & \textbf{0} \\ 
+    \parbox[t]{8mm}{\multirow{-3}{*}{\rotatebox[origin=c]{90}{High}}} & \(9\) & 80.7 & 353.4 & 50 & 47.8 & 346.4 & 48 & \textbf{41.2} & \textbf{267.0} & \textbf{40} \\ \bottomrule                      
+    \end{tabular}
+	\caption{
+		\small
+		\label{tab:figure}
+		(N) : Nodes explored $\times10^{-3}$. (T) : Solving time in sec. (F) : Number of instances not solved within $10^3$ sec.
+	}
+\end{table}
